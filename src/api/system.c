@@ -1,10 +1,15 @@
 #include <SDL2/SDL.h>
 #include <stdbool.h>
 #include <ctype.h>
+#ifndef MOLLENOS
 #include <dirent.h>
 #include <unistd.h>
-#include <errno.h>
 #include <sys/stat.h>
+#else
+#include <os/mollenos.h>
+#include <io.h>
+#endif
+#include <errno.h>
 #include "api.h"
 #include "rencache.h"
 #ifdef _WIN32
@@ -224,6 +229,14 @@ static int f_show_confirm_dialog(lua_State *L) {
   return 1;
 }
 
+#ifdef MOLLENOS
+static int chdir(const char* path)
+{
+  OsStatus_t status = SetWorkingDirectory(path);
+  return OsStatusToErrno(status);
+}
+#endif
+
 
 static int f_chdir(lua_State *L) {
   const char *path = luaL_checkstring(L, 1);
@@ -235,9 +248,10 @@ static int f_chdir(lua_State *L) {
 
 static int f_list_dir(lua_State *L) {
   const char *path = luaL_checkstring(L, 1);
+  struct DIR *dir;
 
-  DIR *dir = opendir(path);
-  if (!dir) {
+  int status = opendir(path, 0, &dir);
+  if (status) {
     lua_pushnil(L);
     lua_pushstring(L, strerror(errno));
     return 2;
@@ -245,11 +259,11 @@ static int f_list_dir(lua_State *L) {
 
   lua_newtable(L);
   int i = 1;
-  struct dirent *entry;
-  while ( (entry = readdir(dir)) ) {
-    if (strcmp(entry->d_name, "." ) == 0) { continue; }
-    if (strcmp(entry->d_name, "..") == 0) { continue; }
-    lua_pushstring(L, entry->d_name);
+  struct DIRENT entry;
+  while (!readdir(dir, &entry)) {
+    if (strcmp(entry.d_name, "." ) == 0) { continue; }
+    if (strcmp(entry.d_name, "..") == 0) { continue; }
+    lua_pushstring(L, entry.d_name);
     lua_rawseti(L, -2, i);
     i++;
   }
@@ -264,6 +278,23 @@ static int f_list_dir(lua_State *L) {
   #define realpath(x, y) _fullpath(y, x, MAX_PATH)
 #endif
 
+#ifdef MOLLENOS
+static char* realpath(const char* path, void* outBuffer)
+{
+  char*      resolvedPath = malloc(_MAXPATH);
+  OsStatus_t status;
+
+  memset(resolvedPath, 0, _MAXPATH);
+  status = PathCanonicalize(path, &resolvedPath[0], _MAXPATH);
+  if (status != OsSuccess) {
+    free(resolvedPath);
+    OsStatusToErrno(status);
+    return NULL;
+  }
+  return resolvedPath;
+}
+#endif
+
 static int f_absolute_path(lua_State *L) {
   const char *path = luaL_checkstring(L, 1);
   char *res = realpath(path, NULL);
@@ -273,6 +304,30 @@ static int f_absolute_path(lua_State *L) {
   return 1;
 }
 
+#ifdef MOLLENOS
+struct stat {
+  clock_t     st_mtime;
+  size_t       st_size;
+  unsigned int st_mode;
+};
+
+#define S_ISREG(flags) (flags == FILE_FLAG_FILE)
+#define S_ISDIR(flags) (flags & FILE_FLAG_DIRECTORY)
+
+static int stat(const char* path, struct stat* filestat)
+{
+  OsFileDescriptor_t descriptor;
+  OsStatus_t         status = GetFileInformationFromPath(path, &descriptor);
+  if (status != OsSuccess) {
+    return OsStatusToErrno(status);
+  }
+  filestat->st_mtime = descriptor.ModifiedAt.tv_sec;
+  filestat->st_size  = (size_t)descriptor.Size.QuadPart;
+  filestat->st_mode  = descriptor.Flags;
+  return 0;
+}
+
+#endif
 
 static int f_get_file_info(lua_State *L) {
   const char *path = luaL_checkstring(L, 1);
@@ -333,6 +388,10 @@ static int f_sleep(lua_State *L) {
   SDL_Delay(n * 1000);
   return 0;
 }
+
+#ifndef MOLLENOS
+#include <os/process.h>
+#endif
 
 
 static int f_exec(lua_State *L) {
