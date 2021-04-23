@@ -5,6 +5,8 @@
 
 #ifdef _WIN32
   #include <windows.h>
+#elif MOLLENOS
+  #include <os/mollenos.h>
 #elif __linux__
   #include <unistd.h>
 #elif __APPLE__
@@ -68,6 +70,11 @@ int main(int argc, char **argv) {
   SetProcessDPIAware();
 #endif
 
+#ifdef MOLLENOS
+	// set working directory to where game data is stored
+	SetWorkingDirectory("$share/lite");
+#endif
+
   SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
   SDL_EnableScreenSaver();
   SDL_EventState(SDL_DROPFILE, SDL_ENABLE);
@@ -84,7 +91,7 @@ int main(int argc, char **argv) {
   SDL_GetCurrentDisplayMode(0, &dm);
 
   window = SDL_CreateWindow(
-    "", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, dm.w * 0.8, dm.h * 0.8,
+    "", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, dm.w * 0.5, dm.h * 0.5,
     SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_HIDDEN);
   init_window_icon();
   ren_init(window);

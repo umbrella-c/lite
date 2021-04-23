@@ -36,3 +36,7 @@ endif()
 
 # Add a new install target
 install(TARGETS lite DESTINATION bin)
+
+install(DIRECTORY data DESTINATION share/lite)
+
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/bin/lite.map DESTINATION bin)

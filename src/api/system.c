@@ -306,7 +306,7 @@ static int f_absolute_path(lua_State *L) {
 
 #ifdef MOLLENOS
 struct stat {
-  clock_t     st_mtime;
+  clock_t      st_mtime;
   size_t       st_size;
   unsigned int st_mode;
 };
