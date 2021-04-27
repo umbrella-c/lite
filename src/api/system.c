@@ -39,7 +39,6 @@ static char* key_name(char *dst, int sym) {
   return dst;
 }
 
-
 static int f_poll_event(lua_State *L) {
   char buf[16];
   int mx, my, wx, wy;
@@ -135,7 +134,6 @@ top:
 
   return 0;
 }
-
 
 static int f_wait_event(lua_State *L) {
   double n = luaL_checknumber(L, 1);
