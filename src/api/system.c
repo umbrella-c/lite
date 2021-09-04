@@ -1,4 +1,4 @@
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <stdbool.h>
 #include <ctype.h>
 #ifndef MOLLENOS
@@ -12,6 +12,7 @@
 #include <errno.h>
 #include "api.h"
 #include "rencache.h"
+#include <string.h>
 #ifdef _WIN32
   #include <windows.h>
 #endif

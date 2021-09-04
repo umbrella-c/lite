@@ -1,7 +1,8 @@
 #include <stdio.h>
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include "api/api.h"
 #include "renderer.h"
+#include <string.h>
 
 #ifdef _WIN32
   #include <windows.h>

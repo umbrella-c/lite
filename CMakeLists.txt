@@ -1,15 +1,6 @@
 cmake_minimum_required(VERSION 3.8)
 project(lite C)
 
-# setup include directories
-if (MOLLENOS)
-  include_directories($ENV{VALI_APPLICATION_PATH}/include)
-  include_directories($ENV{VALI_DDK_PATH}/include)
-
-  link_directories($ENV{VALI_APPLICATION_PATH}/lib)
-  link_directories($ENV{VALI_DDK_PATH}/lib)
-endif()
-
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -29,6 +20,7 @@ add_executable(lite
     src/rencache.c
     src/renderer.c)
 if (MOLLENOS)
+  include_directories(../)
   target_link_libraries(lite SDL2 liblua)
 else ()
   target_link_libraries(lite sdl)
