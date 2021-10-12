@@ -8,6 +8,7 @@
 #else
 #include <os/mollenos.h>
 #include <io.h>
+#include <stdlib.h>
 #endif
 #include <errno.h>
 #include "api.h"

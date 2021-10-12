@@ -3,6 +3,7 @@
 #include "api/api.h"
 #include "renderer.h"
 #include <string.h>
+#include <stdlib.h> // for atexit 
 
 #ifdef _WIN32
   #include <windows.h>

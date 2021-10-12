@@ -4,6 +4,7 @@
 #include <math.h>
 #include "lib/stb/stb_truetype.h"
 #include "renderer.h"
+#include <stdlib.h> // for malloc, free, exit
 
 #define MAX_GLYPHSET 256
 
