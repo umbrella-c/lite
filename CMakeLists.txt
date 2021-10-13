@@ -22,13 +22,18 @@ add_executable(lite
 if (MOLLENOS)
   include_directories(../)
   target_link_libraries(lite SDL2 liblua)
+  set_target_properties(lite
+    PROPERTIES
+        LINK_FLAGS "-Xlinker -lldmap"
+  )
 else ()
   target_link_libraries(lite sdl)
 endif()
 
 # Add a new install target
 install(TARGETS lite DESTINATION bin)
-
 install(DIRECTORY data DESTINATION share/lite)
 
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/bin/lite.map DESTINATION bin)
+if (MOLLENOS)
+  install(FILES ${CMAKE_BINARY_DIR}/bin/lite.map DESTINATION bin)
+endif()
